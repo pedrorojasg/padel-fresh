@@ -65,6 +65,7 @@ export default function Leaderboard() {
         <div className="flex items-center text-xs text-muted font-medium uppercase tracking-wider px-3">
           <div className="w-10" />
           <div className="flex-1" />
+          <div className="w-10 text-right">GP</div>
           <div className="w-12 text-right">P</div>
           <div className="w-16 text-right">W-T-L</div>
         </div>
@@ -90,6 +91,7 @@ export default function Leaderboard() {
                   )}
                 </div>
                 <div className="flex-1 text-white font-medium text-base">{s.name}</div>
+                <div className="w-10 text-right text-muted text-sm">{s.gamesPlayed}</div>
                 <div className="w-12 text-right font-bold text-white">{s.points}</div>
                 <div className="w-16 text-right text-muted text-sm">
                   {s.wins}-{s.ties}-{s.losses}
@@ -102,6 +104,7 @@ export default function Leaderboard() {
 
       {/* Legend */}
       <div className="px-5 mt-6 space-y-1 text-xs text-muted">
+        <p>• GP: Games Played — Total number of matches played.</p>
         <p>• P: Points — The total number of points earned.</p>
         <p>• W-T-L: Wins-Ties-Losses — A record of each participant's performance.</p>
       </div>

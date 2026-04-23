@@ -131,7 +131,7 @@ export function computeLeaderboard(tournament: Tournament): PlayerStats[] {
   const stats: Record<string, PlayerStats> = {};
 
   tournament.players.forEach((p) => {
-    stats[p] = { name: p, points: 0, wins: 0, ties: 0, losses: 0, rank: 0 };
+    stats[p] = { name: p, points: 0, gamesPlayed: 0, wins: 0, ties: 0, losses: 0, rank: 0 };
   });
 
   for (const round of tournament.rounds) {
@@ -151,6 +151,7 @@ export function computeLeaderboard(tournament: Tournament): PlayerStats[] {
       team1.forEach((p) => {
         if (stats[p]) {
           stats[p].points += score1;
+          stats[p].gamesPlayed++;
           if (score1 > score2) {
             stats[p].wins++;
             stats[p].points += winBonus;
@@ -166,6 +167,7 @@ export function computeLeaderboard(tournament: Tournament): PlayerStats[] {
       team2.forEach((p) => {
         if (stats[p]) {
           stats[p].points += score2;
+          stats[p].gamesPlayed++;
           if (score2 > score1) {
             stats[p].wins++;
             stats[p].points += winBonus;

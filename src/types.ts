@@ -37,6 +37,7 @@ export interface AppData {
 export interface PlayerStats {
   name: string;
   points: number;
+  gamesPlayed: number;
   wins: number;
   ties: number;
   losses: number;
