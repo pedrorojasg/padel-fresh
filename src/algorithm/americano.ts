@@ -186,6 +186,42 @@ function sitOutForRound(players: string[], sitOutCount: number, round: number): 
   return resting;
 }
 
+// ─── Fisher-Yates shuffle ────────────────────────────────────────────────────
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ─── Default round count ──────────────────────────────────────────────────────
+//
+// Minimum rounds so that every player can have partnered with every other
+// player at least once, assuming perfect (no-repeat) scheduling:
+//
+//   Each player plays  activePerRound / n  fraction of all rounds.
+//   They need n-1 unique partners → active_rounds ≥ n-1
+//   active_rounds = R × (activePerRound / n)
+//   ⟹  R ≥ ceil((n-1) × n / activePerRound)
+//
+// Examples:
+//   10 players, 2 courts (8 active): ceil(9×10/8)  = 12 rounds
+//    8 players, 2 courts (8 active): ceil(7×8/8)   =  7 rounds
+//   12 players, 3 courts (12 active): ceil(11×12/12) = 11 rounds
+
+export function defaultRounds(playerCount: number, courts: number): number {
+  const activePerRound = Math.min(courts * 4, playerCount);
+  const effectiveCourts = Math.floor(activePerRound / 4);
+  if (effectiveCourts === 0) return 0;
+  const active = effectiveCourts * 4;
+  // When everyone plays every round (no sit-outs): standard n-1 round-robin
+  if (active >= playerCount) return playerCount - 1;
+  return Math.ceil((playerCount - 1) * playerCount / active);
+}
+
 // ─── Main schedule generator ─────────────────────────────────────────────────
 
 export function generateSchedule(players: string[], courts: number): Round[] {
@@ -198,19 +234,20 @@ export function generateSchedule(players: string[], courts: number): Round[] {
 
   const sitOutCount = n - effectiveCourts * 4;
 
-  // Classic Americano: n-1 rounds ensures every player has faced every other
-  // at least as partner or opponent (theoretical maximum without repetition).
-  const totalRounds = n - 1;
+  // Randomise player order so round 1 pairings are unpredictable
+  const orderedPlayers = shuffle(players);
+
+  const totalRounds = defaultRounds(n, courts);
 
   const pairCount: Record<string, number> = {};      // partner-pair history
   const opponentCount: Record<string, number> = {};  // opponent-pair history
   const rounds: Round[] = [];
 
   for (let r = 0; r < totalRounds; r++) {
-    // 1. Determine resting players via systematic rotation
-    const restingPlayers = sitOutForRound(players, sitOutCount, r);
+    // 1. Determine resting players via systematic rotation (on shuffled order)
+    const restingPlayers = sitOutForRound(orderedPlayers, sitOutCount, r);
     const restingSet = new Set(restingPlayers);
-    const active = players.filter((p) => !restingSet.has(p));
+    const active = orderedPlayers.filter((p) => !restingSet.has(p));
 
     // 2. Find best matching
     const matches = findBestRoundMatches(active, effectiveCourts, pairCount, opponentCount);

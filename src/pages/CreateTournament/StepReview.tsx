@@ -1,4 +1,4 @@
-import { generateSchedule } from '../../algorithm/americano';
+import { defaultRounds } from '../../algorithm/americano';
 import type { WizardState } from './index';
 
 interface Props {
@@ -19,9 +19,9 @@ function estimateDuration(rounds: number, pointsPerRound: number): string {
 }
 
 export default function StepReview({ state, dispatch, onClose, onSaveDraft, onCreate }: Props) {
-  const schedule = generateSchedule(state.players, state.courts.length);
-  const totalRounds = schedule.length;
-  const totalMatches = schedule.reduce((acc, r) => acc + r.matches.length, 0);
+  const totalRounds = defaultRounds(state.players.length, state.courts.length);
+  const matchesPerRound = state.courts.length;
+  const totalMatches = totalRounds * matchesPerRound;
   const duration = estimateDuration(totalRounds, state.pointsPerRound);
 
   return (
