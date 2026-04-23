@@ -40,17 +40,32 @@ function defaultCourts(count: number): string[] {
   return Array.from({ length: count }, (_, i) => `Court ${i + 1}`);
 }
 
+/** Recommended courts for a given player count: 1 court per 4 players. */
+function recommendedCourts(playerCount: number): number {
+  return Math.max(1, Math.floor(playerCount / 4));
+}
+
+/** Rebuild courts array when player count changes, preserving existing names. */
+function recalcCourts(currentCourts: string[], newPlayerCount: number): string[] {
+  const count = recommendedCourts(newPlayerCount);
+  return Array.from({ length: count }, (_, i) => currentCourts[i] ?? `Court ${i + 1}`);
+}
+
 function reducer(state: WizardState, action: WizardAction): WizardState {
   switch (action.type) {
     case 'SET_NAME':
       return { ...state, name: action.payload };
     case 'SET_TYPE':
       return { ...state, type: action.payload };
-    case 'ADD_PLAYER':
+    case 'ADD_PLAYER': {
       if (state.players.includes(action.payload)) return state;
-      return { ...state, players: [...state.players, action.payload] };
-    case 'REMOVE_PLAYER':
-      return { ...state, players: state.players.filter((p) => p !== action.payload) };
+      const newPlayers = [...state.players, action.payload];
+      return { ...state, players: newPlayers, courts: recalcCourts(state.courts, newPlayers.length) };
+    }
+    case 'REMOVE_PLAYER': {
+      const newPlayers = state.players.filter((p) => p !== action.payload);
+      return { ...state, players: newPlayers, courts: recalcCourts(state.courts, newPlayers.length) };
+    }
     case 'SET_COURTS': {
       const newCourts = action.payload;
       return { ...state, courts: newCourts };
@@ -82,8 +97,8 @@ const initialState: WizardState = {
   name: '',
   type: 'classic_americano',
   players: [],
-  courts: defaultCourts(2),
-  pointsPerRound: 24,
+  courts: defaultCourts(1),
+  pointsPerRound: 16,
   sitOutPoints: 0,
   winBonus: 0,
   drawBonus: 0,
