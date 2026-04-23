@@ -62,8 +62,8 @@ export function exportTournamentPdf(tournament: Tournament, stats: PlayerStats[]
   autoTable(doc, {
     startY: y,
     margin: { left: margin, right: margin },
-    head: [['#', 'Player', 'GP', 'Points', 'W', 'T', 'L']],
-    body: stats.map((s) => [s.rank, s.name, s.gamesPlayed, s.points, s.wins, s.ties, s.losses]),
+    head: [['#', 'Player', 'Points', 'GP', 'W', 'T', 'L']],
+    body: stats.map((s) => [s.rank, s.name, s.points, s.gamesPlayed, s.wins, s.ties, s.losses]),
     styles: {
       fillColor: CARD_BG,
       textColor: WHITE,
@@ -81,8 +81,8 @@ export function exportTournamentPdf(tournament: Tournament, stats: PlayerStats[]
     },
     columnStyles: {
       0: { cellWidth: 12, halign: 'center' },
-      2: { cellWidth: 16, halign: 'center' },
-      3: { cellWidth: 20, halign: 'center', fontStyle: 'bold' },
+      2: { cellWidth: 20, halign: 'center', fontStyle: 'bold' },
+      3: { cellWidth: 16, halign: 'center' },
       4: { cellWidth: 14, halign: 'center' },
       5: { cellWidth: 14, halign: 'center' },
       6: { cellWidth: 14, halign: 'center' },

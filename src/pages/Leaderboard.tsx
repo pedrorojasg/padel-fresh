@@ -65,8 +65,8 @@ export default function Leaderboard() {
         <div className="flex items-center text-xs text-muted font-medium uppercase tracking-wider px-3">
           <div className="w-10" />
           <div className="flex-1" />
-          <div className="w-10 text-right">GP</div>
           <div className="w-12 text-right">P</div>
+          <div className="w-10 text-right">GP</div>
           <div className="w-16 text-right">W-T-L</div>
         </div>
       </div>
@@ -91,8 +91,8 @@ export default function Leaderboard() {
                   )}
                 </div>
                 <div className="flex-1 text-white font-medium text-base">{s.name}</div>
-                <div className="w-10 text-right text-muted text-sm">{s.gamesPlayed}</div>
                 <div className="w-12 text-right font-bold text-white">{s.points}</div>
+                <div className="w-10 text-right text-muted text-sm">{s.gamesPlayed}</div>
                 <div className="w-16 text-right text-muted text-sm">
                   {s.wins}-{s.ties}-{s.losses}
                 </div>
@@ -117,10 +117,10 @@ export default function Leaderboard() {
             <div key={ri} className="bg-card rounded-2xl border border-border/40 p-4">
               <div className="text-sm font-semibold text-muted mb-2">Round {round.roundNumber}</div>
               {round.matches.map((m, mi) => (
-                <div key={mi} className="flex justify-between text-sm text-white py-1.5 border-b border-border/20 last:border-0">
-                  <span>{m.team1.join(' & ')}</span>
-                  <span className="font-bold text-muted">{m.score1} – {m.score2}</span>
-                  <span>{m.team2.join(' & ')}</span>
+                <div key={mi} className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm text-white py-1.5 border-b border-border/20 last:border-0">
+                  <span className="truncate">{m.team1.join(' & ')}</span>
+                  <span className="font-bold text-muted text-center whitespace-nowrap px-2">{m.score1} – {m.score2}</span>
+                  <span className="text-right truncate">{m.team2.join(' & ')}</span>
                 </div>
               ))}
               {round.restingPlayers.length > 0 && (
