@@ -140,23 +140,30 @@ export function exportTournamentPdf(tournament: Tournament, stats: PlayerStats[]
         rows.push([`Resting: ${round.restingPlayers.join(', ')}`, '', '']);
       }
 
+      // Usable width = pageW - 2*margin; score col fixed at 28mm; teams share the rest equally
+      const usableW = pageW - 2 * margin;
+      const scoreColW = 28;
+      const teamColW = (usableW - scoreColW) / 2;
+
       autoTable(doc, {
         startY: y,
         margin: { left: margin, right: margin },
+        tableWidth: usableW,
         body: rows,
         styles: {
           fillColor: CARD_BG,
           textColor: WHITE,
           fontSize: 9,
           cellPadding: { top: 2.5, bottom: 2.5, left: 4, right: 4 },
+          overflow: 'linebreak',
         },
         alternateRowStyles: {
           fillColor: [50, 50, 50] as [number, number, number],
         },
         columnStyles: {
-          0: { halign: 'left' },
-          1: { halign: 'center', fontStyle: 'bold', textColor: MUTED, cellWidth: 28 },
-          2: { halign: 'right' },
+          0: { halign: 'left',   cellWidth: teamColW },
+          1: { halign: 'center', cellWidth: scoreColW, fontStyle: 'bold', textColor: MUTED },
+          2: { halign: 'right',  cellWidth: teamColW },
         },
         // Resting row spans all columns
         didParseCell: (data) => {

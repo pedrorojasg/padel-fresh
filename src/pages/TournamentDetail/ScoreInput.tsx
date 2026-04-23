@@ -67,7 +67,7 @@ export default function ScoreInput({ team1, team2, score1, score2, max, onChange
       {/* Score display row */}
       <div className="flex items-center justify-between px-2">
         {/* Team 1 names */}
-        <div className="flex-1 text-sm text-white pr-3">
+        <div className="flex-1 text-sm text-white pr-3 space-y-1.5">
           <div className={team1Wins ? 'font-semibold' : ''}>{team1[0]}</div>
           <div className={team1Wins ? 'font-semibold' : ''}>{team1[1]}</div>
         </div>
@@ -88,7 +88,7 @@ export default function ScoreInput({ team1, team2, score1, score2, max, onChange
         </div>
 
         {/* Team 2 names */}
-        <div className="flex-1 text-sm text-white text-right pl-3">
+        <div className="flex-1 text-sm text-white text-right pl-3 space-y-1.5">
           <div className={team2Wins ? 'font-semibold' : ''}>{team2[0]}</div>
           <div className={team2Wins ? 'font-semibold' : ''}>{team2[1]}</div>
         </div>
