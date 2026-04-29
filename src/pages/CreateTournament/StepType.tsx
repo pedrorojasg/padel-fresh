@@ -11,7 +11,7 @@ const TYPES = [
     id: "classic_americano",
     label: "Classic Americano",
     description:
-      "Players team up once and every player will be collecting points individually. ",
+      "Players team up once and every player will be collecting points individually.",
     available: true,
   },
   {
