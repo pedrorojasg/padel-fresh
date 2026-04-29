@@ -197,6 +197,42 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+// ─── Constrained round shuffle ───────────────────────────────────────────────
+//
+// Rules based on sitOutCount:
+//   0-1 resting : full random shuffle (no consecutive-rest risk)
+//   2-3 resting : greedy shuffle – at each position pick randomly among rounds
+//                 whose resting players don't overlap with the previous round,
+//                 guaranteeing no player rests two rounds in a row.
+//   4+ resting  : no shuffle – too many constraints, keep original order.
+
+function constrainedShuffle(rounds: Round[], sitOutCount: number): Round[] {
+  if (sitOutCount <= 1) return shuffle(rounds);
+  if (sitOutCount >= 4) return rounds;
+
+  // Start with a random pool so the eventual output is unpredictable.
+  const pool = shuffle([...rounds]);
+  const result: Round[] = [];
+
+  while (pool.length > 0) {
+    const prevResting =
+      result.length > 0
+        ? new Set(result[result.length - 1].restingPlayers)
+        : new Set<string>();
+
+    // Prefer rounds whose resting players don't overlap with the previous round.
+    const safe = pool.filter((r) => r.restingPlayers.every((p) => !prevResting.has(p)));
+    const source = safe.length > 0 ? safe : pool; // fallback: any remaining round
+
+    // Pick randomly from safe candidates so the order remains unpredictable.
+    const pick = source[Math.floor(Math.random() * source.length)];
+    pool.splice(pool.indexOf(pick), 1);
+    result.push(pick);
+  }
+
+  return result;
+}
+
 // ─── Default round count ──────────────────────────────────────────────────────
 //
 // Minimum rounds so that every player can have partnered with every other
@@ -274,7 +310,9 @@ export function generateSchedule(players: string[], courts: number): Round[] {
   }
 
   // Shuffle round order so the schedule is not predictable, then re-number.
-  const shuffled = shuffle(rounds);
+  // constrainedShuffle avoids placing two rounds with overlapping resting players
+  // consecutively when sitOutCount is 2 or 3.
+  const shuffled = constrainedShuffle(rounds, sitOutCount);
   shuffled.forEach((round, i) => { round.roundNumber = i + 1; });
 
   return shuffled;
