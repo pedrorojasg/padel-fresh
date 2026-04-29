@@ -201,33 +201,49 @@ function shuffle<T>(arr: T[]): T[] {
 //
 // Rules based on sitOutCount:
 //   0-1 resting : full random shuffle (no consecutive-rest risk)
-//   2-3 resting : greedy shuffle – at each position pick randomly among rounds
-//                 whose resting players don't overlap with the previous round,
-//                 guaranteeing no player rests two rounds in a row.
-//   4+ resting  : no shuffle – too many constraints, keep original order.
+//   2   resting : shuffle within each HALF independently
+//   3   resting : shuffle within each THIRD independently
+//   4+  resting : no shuffle – too many constraints, keep original order
+//
+// Splitting into S = sitOutCount segments preserves the rest distribution
+// that the systematic rotation already computed (each rest group is spread
+// across segments in the original sequence). Within each segment a greedy
+// constrained pick ensures no player rests two rounds in a row. The boundary
+// between adjacent segments is also covered because `result` carries the last
+// chosen round forward when the next segment starts.
 
 function constrainedShuffle(rounds: Round[], sitOutCount: number): Round[] {
   if (sitOutCount <= 1) return shuffle(rounds);
   if (sitOutCount >= 4) return rounds;
 
-  // Start with a random pool so the eventual output is unpredictable.
-  const pool = shuffle([...rounds]);
+  const S = sitOutCount; // 2 → halves, 3 → thirds
+  const total = rounds.length;
+  const segSize = Math.ceil(total / S);
   const result: Round[] = [];
 
-  while (pool.length > 0) {
-    const prevResting =
-      result.length > 0
-        ? new Set(result[result.length - 1].restingPlayers)
-        : new Set<string>();
+  for (let s = 0; s < S; s++) {
+    const start = s * segSize;
+    const end = Math.min(start + segSize, total);
 
-    // Prefer rounds whose resting players don't overlap with the previous round.
-    const safe = pool.filter((r) => r.restingPlayers.every((p) => !prevResting.has(p)));
-    const source = safe.length > 0 ? safe : pool; // fallback: any remaining round
+    // Pool for this segment only – preserves the original rest distribution
+    // across halves/thirds while randomising order within each segment.
+    const pool = shuffle(rounds.slice(start, end));
 
-    // Pick randomly from safe candidates so the order remains unpredictable.
-    const pick = source[Math.floor(Math.random() * source.length)];
-    pool.splice(pool.indexOf(pick), 1);
-    result.push(pick);
+    while (pool.length > 0) {
+      // `result` already contains all previously placed rounds (including from
+      // earlier segments), so the boundary constraint is handled automatically.
+      const prevResting =
+        result.length > 0
+          ? new Set(result[result.length - 1].restingPlayers)
+          : new Set<string>();
+
+      const safe = pool.filter((r) => r.restingPlayers.every((p) => !prevResting.has(p)));
+      const source = safe.length > 0 ? safe : pool; // fallback if no safe option exists
+
+      const pick = source[Math.floor(Math.random() * source.length)];
+      pool.splice(pool.indexOf(pick), 1);
+      result.push(pick);
+    }
   }
 
   return result;
