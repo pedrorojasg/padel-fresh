@@ -272,7 +272,11 @@ export function generateSchedule(players: string[], courts: number): Round[] {
     rounds.push({ roundNumber: r + 1, matches, restingPlayers, completed: false });
   }
 
-  return rounds;
+  // Shuffle round order so the schedule is not predictable, then re-number.
+  const shuffled = shuffle(rounds);
+  shuffled.forEach((round, i) => { round.roundNumber = i + 1; });
+
+  return shuffled;
 }
 
 // ─── Leaderboard computation ─────────────────────────────────────────────────
