@@ -249,8 +249,9 @@ export function generateSchedule(players: string[], courts: number): Round[] {
     const restingSet = new Set(restingPlayers);
     const active = orderedPlayers.filter((p) => !restingSet.has(p));
 
-    // 2. Find best matching
-    const matches = findBestRoundMatches(active, effectiveCourts, pairCount, opponentCount);
+    // 2. Find best matching, then randomise court assignment
+    const matchesOrdered = findBestRoundMatches(active, effectiveCourts, pairCount, opponentCount);
+    const matches = shuffle(matchesOrdered).map((m, ci) => ({ ...m, courtIndex: ci }));
 
     // 3. Update history
     for (const m of matches) {
